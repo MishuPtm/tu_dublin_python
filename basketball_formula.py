@@ -15,14 +15,9 @@ def calculate_lead(lead_points, has_ball, seconds_left):
         value -= 0.5
 
     if (value * value) > seconds_left:
-        print(f"Winning with {lead_points} advantage and {seconds_left} seconds left")
-        print(f"Avg seconds for every point = {seconds_left/lead_points}")
+        print("The lead is safe")
     else:
-        print(f"Winning not garanteed")
+        print("Winning is not guaranteed")
 
 
-calculate_lead(10, True, 50)
-calculate_lead(5, True, 5)
-calculate_lead(8, True, 50)
-calculate_lead(7, True, 50)
-calculate_lead(6, True, 50)
+
