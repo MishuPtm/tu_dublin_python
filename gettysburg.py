@@ -68,6 +68,9 @@ def get_most_used(counter_dict=None, count=5):
     # Making a clone of the original values so we do not modify the input
     clone = dict(counter_dict)
     most_used_in_order = []
+    # Making sure we are not trying to retrieve a list longer than the dictionary
+    if count > len(clone):
+        count = len(clone)
 
     for _ in range(count):
         current_max_word = ""
