@@ -30,7 +30,7 @@ def get_text_from_link(link):
             return output
         return None
     except ImportError:
-        print("Requests module is not installed\nGo to the terminal and type pip install requests")
+        print("Requests module is not installed\nGo to the terminal and type:\npip install requests")
     except:
         return None
 
