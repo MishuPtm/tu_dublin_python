@@ -15,14 +15,14 @@ these will be the definite and indefinite articles and some personal pronouns.
 
 """
 import string
-import requests
 
 
 # Returns text from a link if link contains plain text
 def get_text_from_link(link):
     output = ""
     try:
-        response = requests.get(link)
+        import requests
+        response = requests.get(link, timeout=2)
 
         if response.ok and response.headers['Content-Type'] == "text/plain":
             for line in response.text:
@@ -41,42 +41,32 @@ def get_text_from_file(path):
     return output
 
 
-speech = get_text_from_link("http://193.1.33.31:88/pa1/gettysburg.tx")
-stop_words = get_text_from_link("http://193.1.33.31:88/pa1/stopwords.tx")
-
-# If links to not work using local files instead
-if speech is None:
-    print("Could not access the speech online, accessing local copy")
-    speech = get_text_from_file("csfiles/gettysburg.txt")
-
-if stop_words is None:
-    print("Could not access the stop words online, accessing local copy")
-    stop_words = get_text_from_file("csfiles/stop_words.txt")
-stop_words = stop_words.lower().split(",")
-
-# Making a copy of the speech to remove punctuation signs from
-speech_without_punctuation = speech
-for sign in string.punctuation:
-    speech_without_punctuation = speech_without_punctuation.replace(sign, " ")
-speech_without_punctuation = speech_without_punctuation.replace("  ", " ")
+def remove_punctuation(input_str):
+    output = input_str
+    for sign in string.punctuation:
+        output = output.replace(sign, " ")
+    output = output.replace("  ", " ")
+    return output
 
 
 # Creating a dictionary to count unique words longer than 3 letters and not in the stop words list
-counter = {}
-for word in speech_without_punctuation.split(" "):
-    word = word.lower().strip()
-    if word not in stop_words and len(word) > 3:
-        if word not in counter:
-            counter[word] = 1
-        else:
-            counter[word] += 1
+def count_unique_words(input_str, stop_words):
+    counter = {}
+    for word in remove_punctuation(input_str).split(" "):
+        word = word.lower().strip()
+        if word not in stop_words and len(word) > 3:
+            if word not in counter:
+                counter[word] = 1
+            else:
+                counter[word] += 1
+    return counter
 
 
 # Returns a list of most used words in descending order
-def get_most_used(values=None, count=5):
+def get_most_used(counter_dict=None, count=5):
 
     # Making a clone of the original values so we do not modify the input
-    clone = dict(values)
+    clone = dict(counter_dict)
     most_used_in_order = []
 
     for _ in range(count):
@@ -94,6 +84,24 @@ def get_most_used(values=None, count=5):
     return most_used_in_order
 
 
-print(f"The speech contains {len(speech_without_punctuation.split(' '))} words if we exclude the stop words")
-print(f"There are {len(counter)} unique words in the speech")
-print(f"Most popular words are: {get_most_used(counter, 10)}")
+def main():
+    speech = get_text_from_link("http://193.1.33.31:88/pa1/gettysburg.txt")
+    stop_words = get_text_from_link("http://193.1.33.31:88/pa1/stopwords.txt")
+
+    # If links do not work using local files instead
+    if speech is None:
+        print("Could not access the speech online, accessing local copy")
+        speech = get_text_from_file("csfiles/gettysburg.txt")
+
+    if stop_words is None:
+        print("Could not access the stop words online, accessing local copy")
+        stop_words = get_text_from_file("csfiles/stop_words.txt")
+
+    stop_words = stop_words.lower().split(",")
+    counter = count_unique_words(speech, stop_words)
+    print(f"There are {len(counter)} unique words in the speech excluding stop words")
+    print(f"Most popular words are: {get_most_used(counter, 10)}")
+
+
+if __name__ == "__main__":
+    main()
