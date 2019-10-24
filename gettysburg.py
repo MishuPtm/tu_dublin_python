@@ -29,6 +29,8 @@ def get_text_from_link(link):
                 output += line
             return output
         return None
+    except ImportError:
+        print("Requests module is not installed\nGo to the terminal and type pip install requests")
     except:
         return None
 
