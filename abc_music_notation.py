@@ -5,67 +5,51 @@ Music notation
 """
 
 
-# Creates a Song object with required parameters, also overriding the __str__ method to display text as per requirements
 class Song:
     song_nb = int()
     title = ""
     time_sig = ""
     key_sig = ""
 
-    def __init__(self, unformatted_data):
+    def __init__(self, _song_nb, _title, _time_sig, _key_sig):
+        self.song_nb = _song_nb
+        self.title = _title
+        self.time_sig = _time_sig
+        self.key_sig = _key_sig
+
+    """This is a class method that i use as an alternate constructor.
+    I am using this instead of the __init__ as it allows me to protect against incomplete song data"""
+    @classmethod
+    def from_string(cls, unformatted_data):
         try:
-            self.song_nb = int(unformatted_data.split("X:")[1].split("\n")[0])
-            self.title = unformatted_data.split("T:")[1].split("\n")[0]
-            self.time_sig = unformatted_data.split("M:")[1].split("\n")[0]
-            self.key_sig = unformatted_data.split("K:")[1].split("\n")[0]
+            song_nb = int(unformatted_data.split("X:")[1].split("\n")[0])
+            title = unformatted_data.split("T:")[1].split("\n")[0]
+            time_sig = unformatted_data.split("M:")[1].split("\n")[0]
+            key_sig = unformatted_data.split("K:")[1].split("\n")[0]
+            return cls(song_nb, title, time_sig, key_sig)
         except IndexError:
-            # TODO:  Should do something in case one song does not have complete data
-            # Preferably create class method as from_string constructor and
-            # return None if data is incomplete and use that constructor instead of __init__
-            pass
+            return None
 
     def __str__(self):
         return f"{self.song_nb}...{self.title}... Time sig: {self.time_sig}... Key sig: {self.key_sig}"
 
 
-songs = []
+def main():
+    songs = []
+    with open("csfiles/hnr1(3).abc", "r") as file:
+        song_data = ""
+        for line in file:
+            if "X:" in line and song_data != "":    # if X: is in the line it means this is a new song
+                song = Song.from_string(song_data)   # Creates a song object if valid data is given
+                if song:
+                    songs.append(song)  # Checks to see if the object exists before appending it to the list
+                song_data = line    # this clears the old song data and replaces it with a new line from next song
+            else:
+                song_data += line   # keeps adding lines to the data
+
+    for song in songs:
+        print(song)
 
 
-# Formats song data and prints it to console (this is redundant if using song objects)
-def print_song(unformatted_data):
-    song_nb = int()
-    title = ""
-    time_sig = ""
-    key_sig = ""
-    # unformatted_data contains all info for a specific song, i format it using split
-    # To identify the begining and the end of the information i actually use
-    # unformatted_data.split("X:")[1] to get a string that starts with the song number
-    # I then split it again using .split("\n") and access the item [0] so only the number is retrieved and not the rest
-    # The process is repeated for every variable required
-    # [0] takes the value from the left of separator and [1] takes the value from the right
-
-    try:
-        song_nb = int(unformatted_data.split("X:")[1].split("\n")[0])
-        title = unformatted_data.split("T:")[1].split("\n")[0]
-        time_sig = unformatted_data.split("M:")[1].split("\n")[0]
-        key_sig = unformatted_data.split("K:")[1].split("\n")[0]
-
-        print(f"{song_nb}...{title}... Time sig: {time_sig}... Key sig: {key_sig}")
-    except IndexError:
-        print("Incomplete song data")
-
-
-with open("csfiles/hnr1(3).abc", "r") as file:
-    song_data = ""
-    # Reading every line of the file
-    for line in file:
-        if "X:" in line and song_data != "":    # if X: is in the line it means this is a new song
-            songs.append(Song(song_data))       # this creates a song object and appends it to the list
-            # print_song(song_data)   # this calls the method and sends in the entire information of the song
-            song_data = line    # this clears the old song data and replaces it with a new line from next song
-        else:
-            song_data += line   # keeps adding lines to the data
-
-
-for song in songs:
-    print(song)
+if __name__ == "__main__":
+    main()
