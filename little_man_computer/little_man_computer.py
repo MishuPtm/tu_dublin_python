@@ -41,10 +41,15 @@ def load_instructions(path):
 
 
 def execute_instructions(instructions):
+    """
+    :param instructions: dict{address (int): "instructions", etc}
+    """
     counter = -1
     accumulator = 0
     while True:
-        counter += 1
+        counter += 1  # incrementing program counter
+
+        # splitting the instructions in action and address
         action = instructions[counter][:1]
         address = int(instructions[counter][1:])
         if action == "1":       # add
@@ -54,17 +59,16 @@ def execute_instructions(instructions):
         elif action == "3":     # storing value to address
             instructions[address] = f"{accumulator:03}"
         elif action == "5":     # load
-            if address in instructions.keys():
-                accumulator = int(instructions[address])
-            else:
+            if address not in instructions.keys():
                 instructions[address] = "000"
-                accumulator = "000"
+            accumulator = int(instructions[address])
         elif action == "6":     # jump
             counter = address - 1
         elif action == "7":     # branch on 0
             if accumulator == 0:
                 counter = address - 1
-        elif action == "8":     # branch on +
+        elif action == "8":     # branch on
+            # +
             if accumulator >= 0:
                 counter = address - 1
         elif action == "9":       # input/output
